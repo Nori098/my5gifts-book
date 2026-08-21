@@ -59,67 +59,53 @@ html, body {
 
 .counter {
   position: absolute;
-  bottom: 18px;
+  bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0,0,0,0.55);
-  color: white;
-  padding: 7px 12px;
-  border-radius: 20px;
-  font-size: 14px;
+  color: rgba(255,255,255,0.95);
+  background: rgba(0,0,0,0.28);
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: 0.4px;
   z-index: 10;
+  backdrop-filter: blur(4px);
 }
 
 .nav {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   border: none;
   border-radius: 50%;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0,0,0,0.32);
   color: white;
-  font-size: 24px;
+  font-size: 22px;
   cursor: pointer;
   z-index: 10;
 }
 
 .prev {
-  left: 14px;
+  left: 12px;
 }
 
 .next {
-  right: 14px;
+  right: 12px;
 }
 
-.hint {
-  position: absolute;
-  top: 18px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255,255,255,0.88);
-  color: #333;
-  padding: 7px 12px;
-  border-radius: 18px;
-  font-size: 13px;
-  z-index: 10;
-  transition: opacity 0.5s ease;
-}
-
-@media (max-width: 600px) {
+/* スマホでは矢印を消す */
+@media (max-width: 700px) {
   .nav {
-    width: 38px;
-    height: 38px;
-    font-size: 21px;
+    display: none;
   }
 
   .counter {
-    bottom: 12px;
-  }
-
-  .hint {
-    top: 10px;
+    bottom: 8px;
+    font-size: 11px;
+    padding: 3px 8px;
+    background: rgba(0,0,0,0.22);
   }
 }
 </style>
@@ -128,8 +114,6 @@ html, body {
 <body>
 
 <div class="viewer">
-
-  <div class="hint" id="hint">← スワイプして読む →</div>
 
   <button class="nav prev" id="prev">‹</button>
   <button class="nav next" id="next">›</button>
@@ -160,7 +144,6 @@ const pages = document.querySelectorAll(".page");
 const counter = document.getElementById("counter");
 const prev = document.getElementById("prev");
 const next = document.getElementById("next");
-const hint = document.getElementById("hint");
 
 let currentPage = 0;
 
@@ -193,15 +176,7 @@ next.addEventListener("click", () => {
 book.addEventListener("scroll", () => {
   currentPage = Math.round(book.scrollLeft / book.clientWidth);
   updateCounter();
-
-  if (currentPage > 0) {
-    hint.style.opacity = "0";
-  }
 });
-
-setTimeout(() => {
-  hint.style.opacity = "0";
-}, 4000);
 </script>
 
 </body>
