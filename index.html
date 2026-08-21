@@ -55,23 +55,27 @@ html, body {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  display: block;
 }
 
+/* ページ番号 */
 .counter {
   position: absolute;
-  bottom: 12px;
+  bottom: 8px;
   left: 50%;
   transform: translateX(-50%);
   color: rgba(255,255,255,0.95);
-  background: rgba(0,0,0,0.28);
-  padding: 4px 9px;
+  background: rgba(0,0,0,0.22);
+  padding: 3px 8px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.4px;
   z-index: 10;
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
+/* PC用の左右ボタン */
 .nav {
   position: absolute;
   top: 50%;
@@ -80,7 +84,7 @@ html, body {
   height: 38px;
   border: none;
   border-radius: 50%;
-  background: rgba(0,0,0,0.32);
+  background: rgba(0,0,0,0.30);
   color: white;
   font-size: 22px;
   cursor: pointer;
@@ -100,13 +104,6 @@ html, body {
   .nav {
     display: none;
   }
-
-  .counter {
-    bottom: 8px;
-    font-size: 11px;
-    padding: 3px 8px;
-    background: rgba(0,0,0,0.22);
-  }
 }
 </style>
 </head>
@@ -118,38 +115,62 @@ html, body {
   <button class="nav prev" id="prev">‹</button>
   <button class="nav next" id="next">›</button>
 
-  <div class="book" id="book">
+  <div class="book" id="book"></div>
 
-    <div class="page">
-      <img src="01.jpg" alt="表紙">
-    </div>
-
-    <div class="page">
-      <img src="02.jpg" alt="2ページ">
-    </div>
-
-    <div class="page">
-      <img src="03.jpg" alt="3ページ">
-    </div>
-
-  </div>
-
-  <div class="counter" id="counter">1 / 3</div>
+  <div class="counter" id="counter">1 / 13</div>
 
 </div>
 
 <script>
+
+/* -------------------------
+   ここだけ変えればページ数変更OK
+------------------------- */
+
+const totalPages = 13;
+
+
+/* -------------------------
+   ページを自動生成
+------------------------- */
+
 const book = document.getElementById("book");
-const pages = document.querySelectorAll(".page");
 const counter = document.getElementById("counter");
 const prev = document.getElementById("prev");
 const next = document.getElementById("next");
 
+for (let i = 1; i <= totalPages; i++) {
+
+  const page = document.createElement("div");
+  page.className = "page";
+
+  const img = document.createElement("img");
+
+  const fileNumber = String(i).padStart(2, "0");
+
+  img.src = `${fileNumber}.jpg`;
+  img.alt = `${i}ページ`;
+
+  page.appendChild(img);
+  book.appendChild(page);
+}
+
+
+/* -------------------------
+   ページ移動
+------------------------- */
+
 let currentPage = 0;
 
 function goToPage(index) {
-  if (index < 0) index = 0;
-  if (index >= pages.length) index = pages.length - 1;
+
+  if (index < 0) {
+    index = 0;
+  }
+
+  if (index >= totalPages) {
+    index = totalPages - 1;
+  }
 
   currentPage = index;
 
@@ -161,9 +182,20 @@ function goToPage(index) {
   updateCounter();
 }
 
+
+/* -------------------------
+   ページ番号
+------------------------- */
+
 function updateCounter() {
-  counter.textContent = `${currentPage + 1} / ${pages.length}`;
+  counter.textContent =
+    `${currentPage + 1} / ${totalPages}`;
 }
+
+
+/* -------------------------
+   PC左右ボタン
+------------------------- */
 
 prev.addEventListener("click", () => {
   goToPage(currentPage - 1);
@@ -173,10 +205,42 @@ next.addEventListener("click", () => {
   goToPage(currentPage + 1);
 });
 
+
+/* -------------------------
+   スワイプ後のページ番号更新
+------------------------- */
+
+let scrollTimer;
+
 book.addEventListener("scroll", () => {
-  currentPage = Math.round(book.scrollLeft / book.clientWidth);
-  updateCounter();
+
+  clearTimeout(scrollTimer);
+
+  scrollTimer = setTimeout(() => {
+
+    currentPage =
+      Math.round(book.scrollLeft / book.clientWidth);
+
+    updateCounter();
+
+  }, 50);
+
 });
+
+
+/* -------------------------
+   画面回転・サイズ変更対策
+------------------------- */
+
+window.addEventListener("resize", () => {
+
+  book.scrollTo({
+    left: book.clientWidth * currentPage,
+    behavior: "auto"
+  });
+
+});
+
 </script>
 
 </body>
