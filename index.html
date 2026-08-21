@@ -75,7 +75,7 @@ html, body {
   -webkit-backdrop-filter: blur(4px);
 }
 
-/* PC用の左右ボタン */
+/* PC用左右ボタン */
 .nav {
   position: absolute;
   top: 50%;
@@ -99,11 +99,64 @@ html, body {
   right: 12px;
 }
 
-/* スマホでは矢印を消す */
+/* PDFボタン */
+.pdf-button {
+  position: absolute;
+  left: 50%;
+  bottom: 48px;
+  transform: translate(-50%, 20px);
+
+  z-index: 20;
+
+  display: block;
+
+  padding: 13px 24px;
+  border-radius: 999px;
+
+  background: rgba(10, 20, 45, 0.90);
+  color: #ffffff;
+
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+
+  box-shadow: 0 5px 20px rgba(0,0,0,0.28);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease,
+    visibility 0.35s ease;
+}
+
+.pdf-button.show {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+
+/* スマホ */
 @media (max-width: 700px) {
+
   .nav {
     display: none;
   }
+
+  .pdf-button {
+    bottom: 45px;
+    padding: 12px 20px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
 }
 </style>
 </head>
@@ -119,25 +172,41 @@ html, body {
 
   <div class="counter" id="counter">1 / 13</div>
 
+  <a
+    href="ここにGoogle Driveのリンクを貼る"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="pdf-button"
+    id="pdfButton"
+  >
+    PDF版を保存する
+  </a>
+
 </div>
 
 <script>
 
-/* -------------------------
-   ここだけ変えればページ数変更OK
-------------------------- */
+/* =========================
+   BOOK設定
+========================= */
 
 const totalPages = 13;
 
 
-/* -------------------------
-   ページを自動生成
-------------------------- */
+/* =========================
+   要素取得
+========================= */
 
 const book = document.getElementById("book");
 const counter = document.getElementById("counter");
 const prev = document.getElementById("prev");
 const next = document.getElementById("next");
+const pdfButton = document.getElementById("pdfButton");
+
+
+/* =========================
+   01.jpg〜13.jpgを自動生成
+========================= */
 
 for (let i = 1; i <= totalPages; i++) {
 
@@ -146,7 +215,8 @@ for (let i = 1; i <= totalPages; i++) {
 
   const img = document.createElement("img");
 
-  const fileNumber = String(i).padStart(2, "0");
+  const fileNumber =
+    String(i).padStart(2, "0");
 
   img.src = `${fileNumber}.jpg`;
   img.alt = `${i}ページ`;
@@ -156,11 +226,38 @@ for (let i = 1; i <= totalPages; i++) {
 }
 
 
-/* -------------------------
-   ページ移動
-------------------------- */
+/* =========================
+   現在ページ
+========================= */
 
 let currentPage = 0;
+
+
+/* =========================
+   UI更新
+========================= */
+
+function updateUI() {
+
+  counter.textContent =
+    `${currentPage + 1} / ${totalPages}`;
+
+  /* 最後のページだけPDFボタン表示 */
+  if (currentPage === totalPages - 1) {
+
+    pdfButton.classList.add("show");
+
+  } else {
+
+    pdfButton.classList.remove("show");
+
+  }
+}
+
+
+/* =========================
+   ページ移動
+========================= */
 
 function goToPage(index) {
 
@@ -179,23 +276,13 @@ function goToPage(index) {
     behavior: "smooth"
   });
 
-  updateCounter();
+  updateUI();
 }
 
 
-/* -------------------------
-   ページ番号
-------------------------- */
-
-function updateCounter() {
-  counter.textContent =
-    `${currentPage + 1} / ${totalPages}`;
-}
-
-
-/* -------------------------
+/* =========================
    PC左右ボタン
-------------------------- */
+========================= */
 
 prev.addEventListener("click", () => {
   goToPage(currentPage - 1);
@@ -206,9 +293,9 @@ next.addEventListener("click", () => {
 });
 
 
-/* -------------------------
-   スワイプ後のページ番号更新
-------------------------- */
+/* =========================
+   スワイプ時
+========================= */
 
 let scrollTimer;
 
@@ -219,27 +306,36 @@ book.addEventListener("scroll", () => {
   scrollTimer = setTimeout(() => {
 
     currentPage =
-      Math.round(book.scrollLeft / book.clientWidth);
+      Math.round(
+        book.scrollLeft /
+        book.clientWidth
+      );
 
-    updateCounter();
+    updateUI();
 
   }, 50);
 
 });
 
 
-/* -------------------------
-   画面回転・サイズ変更対策
-------------------------- */
+/* =========================
+   画面回転・サイズ変更
+========================= */
 
 window.addEventListener("resize", () => {
 
   book.scrollTo({
-    left: book.clientWidth * currentPage,
+    left:
+      book.clientWidth *
+      currentPage,
     behavior: "auto"
   });
 
 });
+
+
+/* 最初の状態 */
+updateUI();
 
 </script>
 
